@@ -11,7 +11,7 @@ class CrosswordCreator():
         """
         self.crossword = crossword
         self.domains = {
-            var: self.crossword.words.copy()
+            var: self.crossword.words.copy()    # we start for all the words as options in a variable
             for var in self.crossword.variables
         }
 
@@ -99,7 +99,11 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+        for variable in self.domains:
+            self.domains[variable] = {
+                word for word in self.domains[variable]
+                if len(word) == variable.length
+            }
 
     def revise(self, x, y):
         """

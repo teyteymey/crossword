@@ -113,8 +113,47 @@ class CrosswordCreator():
 
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
+
+        From notes:
+        Arc consistency is when all the values in a variable’s domain satisfy the variable’s binary constraints. 
+        In other words, to make X arc-consistent with respect to Y, remove elements from X’s domain until every choice for X has a possible choice for Y.
         """
-        raise NotImplementedError
+        # gives cell where they would cross if any
+        overlaps = self.crossword.overlaps[x, y]
+
+        # if they dont cross, return already
+        if overlaps == None:
+            return False
+
+        remove_x_domain = []
+        found_word_consistent = False
+        # for each character in each word[overlaps[0]] of domain x, if we dont find another word in y[overlaps[1]] that equals, means that y
+        # has no value that fits with x, so we remove x
+        # 
+        # ----- EXAMPLE -----
+        # X: {'HELLO', 'AMAZE', 'TODAY', 'READY', 'FORGE'}; Y: {'ELM', 'ODE'}; OVERLAPS: (1, 2)
+        # CHARS IN WORDS IN X IN POSITION 1 = [E, M, O, E, O].
+        # CHARS IN WORDS IN Y IN POSITION 2 = [M, E].
+        # So we have to remove words that dont overlap correctly, ones with O characted in the index 1 of the word (being 0 the first index). in this example TODAY and FORGE
+        for word_x in self.domains[x]:
+            for word_y in self.domains[y]:
+                if word_x[overlaps[0]] ==  word_y[overlaps[1]]:
+                    found_word_consistent = True
+                    break
+            if not found_word_consistent:
+                remove_x_domain.append(word_x)
+            # reset boolean for new iteration
+            found_word_consistent = False
+
+        if len(remove_x_domain) > 0:
+            self.domains[x] = {
+                word for word in self.domains[x]
+                if word not in remove_x_domain
+            }
+            return True
+        
+        return False
+
 
     def ac3(self, arcs=None):
         """

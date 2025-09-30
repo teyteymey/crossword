@@ -2,6 +2,8 @@ import sys
 
 from crossword import *
 
+from collections import deque
+
 
 class CrosswordCreator():
 
@@ -128,7 +130,7 @@ class CrosswordCreator():
         remove_x_domain = []
         found_word_consistent = False
         # for each character in each word[overlaps[0]] of domain x, if we dont find another word in y[overlaps[1]] that equals, means that y
-        # has no value that fits with x, so we remove x
+        # has no value that fits with x, so we remove it from x
         # 
         # ----- EXAMPLE -----
         # X: {'HELLO', 'AMAZE', 'TODAY', 'READY', 'FORGE'}; Y: {'ELM', 'ODE'}; OVERLAPS: (1, 2)
@@ -164,7 +166,50 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+        arcs_queue = deque()
+        if arcs is None:
+            
+            # could have use overlaps.keys too i guess
+            for variable in self.crossword.variables:
+                for neighbor in self.crossword.neighbors(variable):
+                    arcs_queue.append((variable, neighbor))
+        else:
+            for arc in arcs:
+                arcs_queue.append(arc)
+
+        
+        while len(arcs_queue) > 0:
+            arc = arcs_queue.popleft()
+            # means theres been a change in x's domain and we should check further
+            if self.revise(arc[0], arc[1]):
+                # if no more possibilities for domain of x, no solution is possible
+                if len(self.domains[arc[0]]) == 0:
+                    return False
+                # add all arcs to make sure is consistent except y cuz we just did it.
+                for neighbor in self.crossword.neighbors(arc[0]):
+                    if neighbor != arc[1]:
+                        # the order is important to check neighbor against x. If adding (x, neighbor) we need to remove the check to work but im sure
+                        # it does many more iterations
+                        arcs_queue.append((neighbor, arc[0]))
+
+        return True
+                
+
+        
+
+
+        # queue = all arcs in csp
+# while queue non-empty:
+# (X, Y) = Dequeue(queue)
+# if Revise(csp, X, Y):
+# if size of X.domain == 0:
+# return false
+# for each Z in X.neighbors - {Y}:
+# Enqueue(queue, (Z,X))
+# return true
+
+        print(arcs)
+
 
     def assignment_complete(self, assignment):
         """

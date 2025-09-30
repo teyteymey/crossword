@@ -193,30 +193,16 @@ class CrosswordCreator():
                         arcs_queue.append((neighbor, arc[0]))
 
         return True
-                
-
-        
-
-
-        # queue = all arcs in csp
-# while queue non-empty:
-# (X, Y) = Dequeue(queue)
-# if Revise(csp, X, Y):
-# if size of X.domain == 0:
-# return false
-# for each Z in X.neighbors - {Y}:
-# Enqueue(queue, (Z,X))
-# return true
-
-        print(arcs)
-
 
     def assignment_complete(self, assignment):
         """
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        raise NotImplementedError
+        for variable in self.crossword.variables:
+            if variable not in assignment:
+                return False
+        return True
 
     def consistent(self, assignment):
         """

@@ -252,7 +252,6 @@ class CrosswordCreator():
         response = []
         # sorts them by asc key
         for item in sorted(dict_response.items()):
-            print(item)
             for word in item[1]:
                 response.append(word)
 
@@ -266,10 +265,30 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
+        result = defaultdict(list)
         for variable in self.crossword.variables:
             if variable not in assignment:
-                return variable
-        raise NotImplementedError
+                # adds the variable to the number of words in its domain
+                result[len(self.domains[variable])].append(variable)
+        
+        # sort by count asc and variables that have that number of words in domain
+        ordered_variables = sorted(result.items())
+        #if the first element (so the one with the least words in its domain) has only one variable, return it.
+        # else means that they have the same number of words and we need to untie them
+        # item is a tuple of count and variables: (0, [var1, var2])
+        variables_with_smaller_domain = ordered_variables[0][1]
+        if ordered_variables and len(variables_with_smaller_domain) == 1:
+            return variables_with_smaller_domain[0]
+        else:
+            max_neighbors = -1
+            best_variable = None
+            for variable in variables_with_smaller_domain:
+                if len(self.crossword.neighbors(variable)) > max_neighbors:
+                    max_neighbors = len(self.crossword.neighbors(variable))
+                    best_variable = variable
+
+            return best_variable
+        
 
     def backtrack(self, assignment):
         """

@@ -2,7 +2,7 @@ import sys
 
 from crossword import *
 
-from collections import deque
+from collections import deque, defaultdict
 
 
 class CrosswordCreator():
@@ -235,8 +235,28 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        return self.domains[var]
-        raise NotImplementedError
+        dict_response = defaultdict(list)
+
+        for word in self.domains[var]:
+            count = 0
+            for neighbor in self.crossword.neighbors(var):
+                if neighbor not in assignment:
+                    overlap_indexes = self.crossword.overlaps[var, neighbor]
+                    for neighbord_word in self.domains[neighbor]:
+                        # if characters dont match, it rules it out.
+                        # do this for all the words in all the neighbors domains for each word in var
+                        if word[overlap_indexes[0]] != neighbord_word[overlap_indexes[1]]:
+                            count += 1
+            dict_response[count].append(word)
+
+        response = []
+        # sorts them by asc key
+        for item in sorted(dict_response.items()):
+            print(item)
+            for word in item[1]:
+                response.append(word)
+
+        return response
 
     def select_unassigned_variable(self, assignment):
         """
@@ -265,7 +285,6 @@ class CrosswordCreator():
         
         variable = self.select_unassigned_variable(assignment)
         for value in self.domains[variable]:
-            #if value consistent with assignment
             assignment[variable] = value
             resulting_assignment = self.backtrack(assignment)
             if resulting_assignment is not None:

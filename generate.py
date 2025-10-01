@@ -305,9 +305,11 @@ class CrosswordCreator():
         variable = self.select_unassigned_variable(assignment)
         for value in self.domains[variable]:
             assignment[variable] = value
-            resulting_assignment = self.backtrack(assignment)
-            if resulting_assignment is not None:
-                return resulting_assignment
+            # added it to check for repeated words in assignment, in that case solution is not valid
+            if self.consistent(assignment):
+                resulting_assignment = self.backtrack(assignment)
+                if resulting_assignment is not None:
+                    return resulting_assignment
             assignment.pop(variable)
 
         return None

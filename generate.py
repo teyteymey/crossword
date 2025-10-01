@@ -304,7 +304,7 @@ class CrosswordCreator():
         
         variable = self.select_unassigned_variable(assignment)
         for value in self.domains[variable]:
-            assignment[variable] = value
+            assignment[variable] = valuegi
             # added it to check for repeated words in assignment, in that case solution is not valid
             if self.consistent(assignment):
                 resulting_assignment = self.backtrack(assignment)
